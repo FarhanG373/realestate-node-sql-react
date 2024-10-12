@@ -1,0 +1,19 @@
+@import './variables';
+* {
+    box-sizing: border-box;
+}
+@mixin wrap {
+    max-width: 1240px;
+    width: 100%;
+    padding: 0px 20px;
+    margin: 0px auto;
+    position: relative;
+    &:after {
+        display: block;
+        content: "";
+        clear: both;
+    }
+}
+@mixin textCenter {
+    text-align: center;
+}

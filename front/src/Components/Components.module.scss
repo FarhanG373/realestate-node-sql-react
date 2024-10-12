@@ -1,0 +1,35 @@
+@import '../Assets/mixin';
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 1.5rem;
+    border-bottom: 1px solid $primaryColor;
+    .logo {
+        img {
+            width: 155px;
+        }
+    }
+    ul{
+        display: flex;
+        list-style: none;
+        padding: 0px;
+        margin: 0px;
+        justify-content: space-between;
+        align-items: center;
+        li{
+            margin-left: 20px;
+            a, button{
+                color: $primaryColor;
+                text-decoration: none;
+                background-color: transparent;
+                border: 0px;
+                cursor: pointer;
+                font-size: 1rem;
+                &:hover {
+                    opacity: .8;
+                }
+            }
+        }
+    }
+}
