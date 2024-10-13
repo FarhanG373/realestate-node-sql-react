@@ -1,20 +1,28 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import {useDispatch, useSelector} from 'react-redux';
+import {getProp} from '../Redux/PropertySlice'
 import s from "./Pages.module.scss";
 import { jwtDecode } from "jwt-decode";
 import { Link } from "react-router-dom";
+
 const BuyProperty = () => {
+  const {loading, error} = useSelector((state) => state.property);
+const dispatch = useDispatch()
   const [property, setProperty] = useState([]);
-  const token = JSON.parse(localStorage.getItem("tokenRealEstate"));
-  const decode = jwtDecode(token);
-  const getProp = async () => {
-    const getP = await axios.get(`http://localhost:9090/property/getProperty`);
-    setProperty(getP.data.data);
-  };
+
 
   useEffect(() => {
-    getProp();
-  }, []);
+   dispatch(getProp(setProperty));
+  }, [dispatch]);
+
+  if (loading) {
+    return <h2>Loading...</h2>;
+  }
+  if (error) {
+    return <h2>Error: {error.message}</h2>;
+  }
+
   return (
     <>
       <h2>Property list for Buy</h2>
@@ -30,7 +38,7 @@ const BuyProperty = () => {
           </tr>
         </thead>
         <tbody>
-          {property.map((p) => (
+          {property.filter((p) => p.propertyFor === "sell").map((p) => (
             <tr key={p.id}>
               <td>
                 <img src={`/uploads/${p.propImage}`} alt={p.propertyName} />

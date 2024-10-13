@@ -1,61 +1,66 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
+import { getsingleProperty } from '../Redux/PropertySlice';
 import s from "./Pages.module.scss";
-import axios from "axios";
+
 const SinglePage = () => {
   const { id } = useParams();
-  const [data, setData] = useState(null);
+  const dispatch = useDispatch();
+  const { loading, error, data = [] } = useSelector((state) => state.property);
+  const [dataProperty, setData] = useState(data);
   const [con, setContact] = useState(false);
   const token = JSON.parse(localStorage.getItem('tokenRealEstate'));
-  const getSingle = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:9090/property/singleProperty/${id}`
-      );
-      setData(response.data.data);
-    } catch (error) {
-      console.error("Error fetching single property:", error);
-    }
-  };
-
   const contact = () => {
     setContact(!con);
   };
 
   useEffect(() => {
-    getSingle();
-  }, []);
+    dispatch(getsingleProperty(id)).then((response) => {
+      setData(response.payload);
+    });
+  }, [dispatch, id]);
+
+  if (loading) {
+    return <h2>Loading...</h2>;
+  }
+  if (error) {
+    return <h2>Error: {error}</h2>;
+  }
+
   return (
     <div className={s.wrap}>
       <div className={s.single}>
         <div className={s.det}>
-        {data?.map((data, i) => {
-          return (
-            <div key={i}>
+          {dataProperty.map((p) => (
+            <div key={p.id}>
               <img
-                src={`/uploads/${data.propImage}`}
-                alt={data.propertyName}
+                src={`/uploads/${p.propImage}`}
+                alt={p.propertyName}
                 width={"100%"}
               />
-              <h2>{data.propertyName}</h2>
-              <p>{data.propertyDescription}</p>
+              <h2>{p.propertyName}</h2>
+              <p>{p.propertyDescription}</p>
               <p>
-                <b>Price:</b> {data.propertyPrice}
+                <b>Price:</b> {p.propertyPrice}
               </p>
               <p>
-                <b>Location:</b> {data.propertyAddress}
+                <b>Location:</b> {p.propertyAddress}
               </p>
               <p>
-                <b>Type:</b> {data.propertyType}
+                <b>Type:</b> {p.propertyType}
               </p>
               <p>
-                <b>Property For:</b> {data.propertyFor}
+                <b>Property For:</b> {p.propertyFor}
               </p>
             </div>
-          );
-        })}
+          ))}
 
-        {token ? <button onClick={contact}>Contact with seller</button> : <Link to={`/login`}>Login for contact seller</Link>}
+          {token ? (
+            <button onClick={contact}>Contact with seller</button>
+          ) : (
+            <Link to={`/login`}>Login for contact seller</Link>
+          )}
         </div>
         {con && (
           <div className={s.contactForm}>
@@ -73,12 +78,13 @@ const SinglePage = () => {
               <textarea placeholder="Message" />
             </div>
             <div className={s.row}>
-              {
-                data.map((d)=>{
-                  return <input type="text" value={d.propertyName} disabled/>
-                })
-              }
-            
+              {dataProperty && (
+                <input
+                  type="text"
+                  value={dataProperty[0].propertyName}
+                  disabled
+                />
+              )}
             </div>
             <div className={s.row}>
               <button>Send</button>

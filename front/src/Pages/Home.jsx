@@ -2,21 +2,26 @@ import React, { useState, useEffect } from "react";
 import s from "./Pages.module.scss";
 import axios from "axios";
 import { Link } from "react-router-dom";
-
+import {useSelector, useDispatch} from 'react-redux'
+import {getProp} from '../Redux/PropertySlice'
 const Home = () => {
+  const {loading, error} = useSelector((state) => state.property);
+  const dispatch = useDispatch();
   const [rentProp, setremntProp] = useState([]);
   const [filter, setFilter] = useState("all");
-  const getRent = async () => {
-    const getR = await axios.get(`http://localhost:9090/property/getProperty`);
-    const dat = getR.data.data;
-    setremntProp(dat);
-  };
   const handleFilterChange = (option) => {
     setFilter(option);
   };
   useEffect(() => {
-    getRent();
-  }, []);
+    dispatch(getProp(setremntProp));
+  }, [dispatch]);
+
+  if (loading) {
+    return <h2>Loading...</h2>;
+  }
+  if (error) {
+    return <h2>Error: {error.message}</h2>;
+  }
   return (
     <div className={s.home}>
       <div className={s.banner}>
@@ -47,7 +52,7 @@ const Home = () => {
           <>
             <h1 className={s.textCenter}>Property</h1>
             <ul className={s.filter}>
-              <li>
+              <li key={rentProp}>
                 <button
                   onClick={() => handleFilterChange("all")}
                   className={filter === "all" ? s.active : ""}
@@ -55,7 +60,7 @@ const Home = () => {
                   Show All
                 </button>
               </li>
-              <li>
+              <li key={rentProp}>
                 <button
                   onClick={() => handleFilterChange("rent")}
                   className={filter === "rent" ? s.active : ""}
@@ -63,7 +68,7 @@ const Home = () => {
                   Show For rent
                 </button>
               </li>
-              <li>
+              <li key={rentProp}>
                 <button
                   onClick={() => handleFilterChange("sell")}
                   className={filter === "sell" ? s.active : ""}
